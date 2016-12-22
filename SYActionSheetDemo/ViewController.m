@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "SYActionSheet.h"
-
+#import "UIImage+BoxBlur.h"
 #define SCREEN_BOUNDS         [UIScreen mainScreen].bounds
 #define SCREEN_WIDTH          [UIScreen mainScreen].bounds.size.width
 #define SCREEN_HEIGHT         [UIScreen mainScreen].bounds.size.height
@@ -23,6 +23,58 @@
     [super viewDidLoad];
 //    self.view.backgroundColor=[UIColor redColor];
     // Do any additional setup after loading the view, typically from a nib.
+   
+    
+    UIButton *otherBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    otherBtn.frame =CGRectMake(100, 100, 100, 40);
+//    otherBtn.backgroundColor = [UIColor whiteColor];
+//    UIImage *cuttedImage = cutOriginalBackgroundImageInRect(obj.frame);
+//    UIImage *backgroundImageNormal = [[self imageToblur:[self imageFromColor:[UIColor colorWithWhite:1 alpha:0.65]]] drn_boxblurImageWithBlur:0.7 withTintColor:[UIColor colorWithWhite:1 alpha:0.65]];
+    [otherBtn setBackgroundImage:[self imageToblur:[self imageFromColor:[UIColor colorWithWhite:1 alpha:0.65]]] forState:UIControlStateNormal];
+    [self.view addSubview:otherBtn];
+    
+}
+
+
+
+
+- (UIImage *)imageFromColor:(UIColor *)color {
+    
+    CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
+
+
+
+- (UIImage *)imageToblur:(UIImage *)image{
+    
+    CIContext *context1 = [CIContext contextWithOptions:nil];
+    
+    CIImage *inputImage = [CIImage imageWithCGImage:image.CGImage];
+    
+    // Setting up gaussian blur
+    CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+    
+    [filter setValue:inputImage forKey:kCIInputImageKey];
+    
+    [filter setValue:[NSNumber numberWithFloat:0.7] forKey:@"inputRadius"];
+    
+    CIImage *result = [filter valueForKey:kCIOutputImageKey];
+    
+    CGImageRef cgImage = [context1 createCGImage:result fromRect:[inputImage extent]];
+    
+    UIImage *returnImage = [UIImage imageWithCGImage:cgImage];
+    
+    CGImageRelease(cgImage);
+    
+    return returnImage;
 }
 
 -(void)viewDidAppear:(BOOL)animated{
